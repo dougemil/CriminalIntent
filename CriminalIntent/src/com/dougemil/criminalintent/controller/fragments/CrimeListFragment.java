@@ -2,6 +2,7 @@ package com.dougemil.criminalintent.controller.fragments;
 
 import java.util.ArrayList;
 
+import com.dougemil.criminalintent.R;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
@@ -13,7 +14,6 @@ import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.dougemil.criminalintent.R;
 import com.dougemil.criminalintent.controller.activities.CrimePagerActivity;
 import com.dougemil.criminalintent.model.Crime;
 import com.dougemil.criminalintent.model.CrimeLab;
