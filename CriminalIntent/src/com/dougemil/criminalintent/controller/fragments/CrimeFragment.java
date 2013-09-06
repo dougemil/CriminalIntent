@@ -216,6 +216,13 @@ public class CrimeFragment extends Fragment {
 		}
 		
 	}
+
+	@Override
+	// Save crimes to disk, crimes are stored in a member variable of CrimeLab singleton
+	public void onPause() {
+		super.onPause();
+		CrimeLab.get(getActivity()).saveCrimes();
+	}
 	
 	
 
