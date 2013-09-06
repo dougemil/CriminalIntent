@@ -53,6 +53,11 @@ public class CrimeLab {
 		mCrimes.add(c);
 	}
 	
+	public void deleteCrime(Crime c){
+		mCrimes.remove(c);
+		Log.d(TAG,"**Crime Deleted");
+	}
+	
 	public boolean saveCrimes(){
 		// Logs status instead of displaying to user
 		try {

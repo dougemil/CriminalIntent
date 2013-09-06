@@ -8,12 +8,17 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
+import android.view.ActionMode;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView.MultiChoiceModeListener;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.ListView;
@@ -83,6 +88,61 @@ public class CrimeListFragment extends ListFragment {
 			if(mSubtitleVisible){
 				getActivity().getActionBar().setSubtitle(R.string.subtitle);
 			}
+		}
+		
+		// Registering the view of a floating context menu
+		ListView listView = (ListView)v.findViewById(android.R.id.list);
+		
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB){
+			// Use floating context menu
+			registerForContextMenu(listView);
+			
+		}else{
+			// Use contextual action bar
+			// allow multiple selections (choices)
+			
+			listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+			
+			// **Creating the listener
+			listView.setMultiChoiceModeListener(new MultiChoiceModeListener() {
+				
+				public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked){
+					// Required method, not used
+				}
+				
+				// ActionMode.Callback methods
+				public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+					// inlfater retrieved from ActionMode, not Activity
+					MenuInflater inflater = mode.getMenuInflater();
+					inflater.inflate(R.menu.crime_list_item_context, menu);
+					return true;
+				}
+				public boolean onPrepareActionMode(ActionMode mode, Menu menu){
+					// Required method, not used
+					return false;
+				}
+				public boolean onActionItemClicked(ActionMode mode, MenuItem item){
+					switch (item.getItemId()){
+						case R.id.menu_item_delte_crime:
+							CrimeAdapter adapter = (CrimeAdapter)getListAdapter();
+							CrimeLab crimeLab = CrimeLab.get(getActivity());
+							for(int i = adapter.getCount() - 1; i >= 0; i--){
+								if (getListView().isItemChecked(i)){
+									crimeLab.deleteCrime(adapter.getItem(i));
+								}
+							}
+							mode.finish();
+							adapter.notifyDataSetChanged();
+							return true;
+						default:
+							return false;
+								}
+							}
+				public void onDestroyActionMode(ActionMode mode){
+					// Required method, not used
+					}
+				
+			});
 		}
 		return v;
 	}
@@ -208,6 +268,44 @@ public class CrimeListFragment extends ListFragment {
 				default:
 					return super.onOptionsItemSelected(item);
 				}
+			}
+
+
+			@Override
+			public void onCreateContextMenu(ContextMenu menu, View v,
+					ContextMenuInfo menuInfo) {
+				// inflate menu, inflater must be retrieved from parent activity
+				// there is only one context menu resource defined so no need to check id of received view
+				// view must be registered in onCreateView(...)
+				getActivity().getMenuInflater().inflate(R.menu.crime_list_item_context, menu);
+			}
+
+
+			@Override
+			public boolean onContextItemSelected(MenuItem item) {
+				
+				// Use MenuInfo and adapter to determine which Crime was long-pressed
+				AdapterContextMenuInfo info = (AdapterContextMenuInfo)item.getMenuInfo();
+				int position = info.position;
+				CrimeAdapter adapter = (CrimeAdapter)getListAdapter();
+				Crime crime = adapter.getItem(position);
+				
+				// delete Crime
+				switch (item.getItemId()) {
+					case R.id.menu_item_delte_crime:
+						CrimeLab.get(getActivity()).deleteCrime(crime);
+						adapter.notifyDataSetChanged();
+						return true;
+				}		
+				return super.onContextItemSelected(item);
+			}
+
+
+			@Override
+			// Save crimes to disk, crimes are stored in a member variable of CrimeLab singleton
+			public void onPause() {
+				super.onPause();
+				CrimeLab.get(getActivity()).saveCrimes();
 			}
 
 }
