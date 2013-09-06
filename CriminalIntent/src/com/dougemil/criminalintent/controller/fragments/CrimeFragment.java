@@ -5,15 +5,19 @@ package com.dougemil.criminalintent.controller.fragments;
 import java.util.Date;
 import java.util.UUID;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.NavUtils;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -59,6 +63,9 @@ public class CrimeFragment extends Fragment {
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
 		
+		// Turn on Option Menu handling
+		setHasOptionsMenu(true);
+		
 //		// Directly accessing the intent to retireve an extra
 //		UUID crimeId = (UUID)getActivity()
 //							.getIntent()
@@ -72,6 +79,7 @@ public class CrimeFragment extends Fragment {
 							.getCrime(crimeId);
 	}
 
+	@TargetApi(11) // Override Lint for Action Bar's Up icon
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup parent,
 			Bundle savedInstanceState) {
@@ -80,6 +88,13 @@ public class CrimeFragment extends Fragment {
 		// 3rd param tells inflater whether to add View to parent
 		// false if View will be added by something else
 		View v = inflater.inflate(R.layout.fragment_crime, parent, false);
+		
+		// Enabling the Action Bar icon, adds caret to icon
+		// Confirm a parent is declared in the meta data
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
+			if (NavUtils.getParentActivityName(getActivity()) != null)
+				getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
+		}
 		
 		// View must be explicitly referenced in the method call
 		mTitleField = (EditText)v.findViewById(R.id.crime_title);
@@ -185,6 +200,21 @@ public class CrimeFragment extends Fragment {
 		Date crimeDate = mCrime.getDate();
 		String timeString = (String)DateFormat.format(timeFormatString, crimeDate);
 		mTimeButton.setText(timeString);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		
+		switch (item.getItemId()){
+			case android.R.id.home:
+				if (NavUtils.getParentActivityName(getActivity()) != null){
+						NavUtils.navigateUpFromSameTask(getActivity());
+				}
+				return true;
+			default:
+				return super.onOptionsItemSelected(item);
+		}
+		
 	}
 	
 	

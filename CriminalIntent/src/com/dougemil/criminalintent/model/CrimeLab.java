@@ -14,6 +14,7 @@ import android.content.Context;
 public class CrimeLab {
 	
 	private static CrimeLab sCrimeLab;
+	@SuppressWarnings("unused")
 	private Context mAppContext;
 	private ArrayList<Crime> mCrimes;
 	
@@ -22,14 +23,6 @@ public class CrimeLab {
 	private CrimeLab(Context appContext){
 		mAppContext = appContext;
 		mCrimes = new ArrayList<Crime>();
-		
-		// temp population of crimes
-		for (int i=0; i<100; i++){
-			Crime c = new Crime();
-			c.setTitle("Crime #" + i);
-			c.setSolved(i % 2 == 0); // every other one
-			mCrimes.add(c);
-		}
 	}
 	
 	// public method calls constructor to populate static variable
@@ -38,6 +31,10 @@ public class CrimeLab {
 			sCrimeLab = new CrimeLab(c.getApplicationContext());
 		}
 		return sCrimeLab;
+	}
+	
+	public void addCrime(Crime c) {
+		mCrimes.add(c);
 	}
 	
 	public ArrayList<Crime> getCrimes() {
